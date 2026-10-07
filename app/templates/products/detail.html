@@ -1,0 +1,46 @@
+{% extends 'base.html' %}{% block title %}{{ product.name }}{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('products.list_products') }}">Products</a></li><li class="breadcrumb-item active">{{ product.name }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ product.name }}</h1>
+    <div class="d-flex gap-2">
+        {% if current_user.role in ['admin','manager'] %}
+        <a href="{{ url_for('products.edit_product', id=product.id) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
+        <form method="POST" action="{{ url_for('products.delete_product', id=product.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm" data-confirm="Are you sure?"><i class="bi bi-trash me-1"></i>Delete</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card mb-3"><div class="card-body text-center">
+            {% if product.image_url %}<img src="{{ product.image_url }}" class="img-fluid rounded mb-3" style="max-height:250px;" alt="{{ product.name }}">
+            {% else %}<div class="py-5 text-muted"><i class="bi bi-image" style="font-size:4rem;opacity:0.2;"></i></div>{% endif %}
+            {% if product.barcode %}<div class="mt-2"><span class="badge bg-dark fs-6"><i class="bi bi-upc me-1"></i>{{ product.barcode }}</span></div>{% endif %}
+        </div></div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card mb-3"><div class="card-header">Product Details</div><div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4"><small class="text-muted d-block">SKU</small><strong>{{ product.sku }}</strong></div>
+                <div class="col-md-4"><small class="text-muted d-block">Category</small><strong>{{ product.category }}</strong></div>
+                <div class="col-md-4"><small class="text-muted d-block">Unit</small><strong>{{ product.unit }}</strong></div>
+                <div class="col-md-4"><small class="text-muted d-block">Selling Price</small><strong class="text-success">${{ "%.2f"|format(product.price) }}</strong></div>
+                <div class="col-md-4"><small class="text-muted d-block">Cost Price</small><strong>${{ "%.2f"|format(product.cost_price) }}</strong></div>
+                <div class="col-md-4"><small class="text-muted d-block">Margin</small><strong>{{ "%.1f"|format(product.profit_margin) }}%</strong></div>
+                <div class="col-12"><small class="text-muted d-block">Description</small><p>{{ product.description or 'No description' }}</p></div>
+            </div>
+        </div></div>
+        <div class="card"><div class="card-header">Stock Settings</div><div class="card-body">
+            <div class="row g-3">
+                <div class="col-3"><small class="text-muted d-block">Min Stock</small><strong>{{ product.min_stock_level }}</strong></div>
+                <div class="col-3"><small class="text-muted d-block">Reorder Point</small><strong>{{ product.reorder_point }}</strong></div>
+                <div class="col-3"><small class="text-muted d-block">Reorder Qty</small><strong>{{ product.reorder_quantity }}</strong></div>
+                <div class="col-3"><small class="text-muted d-block">Max Stock</small><strong>{{ product.max_stock_level }}</strong></div>
+            </div>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

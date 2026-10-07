@@ -1,0 +1,74 @@
+{% extends 'base.html' %}{% block title %}PO {{ po.order_number }}{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('purchase_orders.list_purchase_orders') }}">Purchase Orders</a></li><li class="breadcrumb-item active">{{ po.order_number }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ po.order_number }}</h1>
+    <div class="d-flex gap-2">
+        {% if po.status in ['draft', 'pending'] %}
+        <form method="POST" action="{{ url_for('purchase_orders.approve_po', id=po.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check-circle me-1"></i>Approve</button>
+        </form>
+        {% endif %}
+        {% if po.status == 'approved' %}
+        <form method="POST" action="{{ url_for('purchase_orders.receive_po', id=po.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-info btn-sm"><i class="bi bi-box-arrow-in-down me-1"></i>Receive</button>
+        </form>
+        {% endif %}
+        {% if po.status not in ['received', 'cancelled'] %}
+        <form method="POST" action="{{ url_for('purchase_orders.cancel_po', id=po.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm" data-confirm="Cancel this purchase order?"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card mb-3"><div class="card-header">PO Details</div><div class="card-body">
+            <div class="row g-3">
+                <div class="col-6"><small class="text-muted d-block">PO Number</small><strong>{{ po.order_number }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Status</small><span class="badge bg-{{ 'secondary' if po.status=='draft' else 'warning' if po.status=='pending' else 'success' if po.status=='approved' else 'info' if po.status=='received' else 'danger' }}">{{ po.status|capitalize }}</span></div>
+                <div class="col-12"><small class="text-muted d-block">Supplier</small><strong>{{ po.supplier_name or '—' }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Created</small><strong>{{ po.created_at[:10] if po.created_at else '—' }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Expected Delivery</small><strong>{{ po.expected_delivery[:10] if po.expected_delivery else '—' }}</strong></div>
+                <div class="col-12"><small class="text-muted d-block">Warehouse ID</small><strong>{{ po.warehouse_id or '—' }}</strong></div>
+            </div>
+        </div></div>
+        <!-- Totals Card -->
+        <div class="card mb-3"><div class="card-header">Totals</div><div class="card-body">
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal</span><span>${{ "%.2f"|format(po.subtotal) }}</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Tax</span><span>${{ "%.2f"|format(po.tax) }}</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Shipping</span><span>${{ "%.2f"|format(po.shipping) }}</span></div>
+            <hr>
+            <div class="d-flex justify-content-between"><strong>Total</strong><strong class="text-primary">${{ "%.2f"|format(po.total_amount) }}</strong></div>
+        </div></div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card mb-3"><div class="card-header">Items</div>
+            <div class="table-responsive"><table class="table mb-0">
+                <thead><tr><th>Product</th><th>SKU</th><th class="text-center">Qty Ordered</th><th class="text-center">Qty Received</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr></thead>
+                <tbody>
+                {% for item in po.items %}
+                <tr>
+                    <td>{{ item.product_name or '—' }}</td>
+                    <td><code>{{ item.sku or '—' }}</code></td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-center">{{ item.received_quantity }}</td>
+                    <td class="text-end">${{ "%.2f"|format(item.unit_price) }}</td>
+                    <td class="text-end">${{ "%.2f"|format(item.total) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No items</td></tr>
+                {% endfor %}
+                </tbody>
+            </table></div>
+        </div>
+        <!-- Notes -->
+        <div class="card"><div class="card-header">Notes</div><div class="card-body">
+            <p class="mb-0">{{ po.notes or 'No notes added.' }}</p>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

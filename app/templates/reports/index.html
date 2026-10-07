@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Reports</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h1>
+</div>
+
+<div class="row g-4">
+    <!-- Inventory Summary -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 report-card">
+            <div class="card-body text-center">
+                <div class="mb-3"><i class="bi bi-box-seam text-primary" style="font-size: 3rem;"></i></div>
+                <h5 class="card-title">Inventory Summary</h5>
+                <p class="text-muted small">Current stock levels, available vs reserved quantities, and warehouse locations.</p>
+                <form action="{{ url_for('reports.generate_report') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="report_type" value="inventory_summary">
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="submit" name="format" value="excel" class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+                        <button type="submit" name="format" value="pdf" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Sales Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 report-card">
+            <div class="card-body text-center">
+                <div class="mb-3"><i class="bi bi-cart-check text-success" style="font-size: 3rem;"></i></div>
+                <h5 class="card-title">Sales Report</h5>
+                <p class="text-muted small">Overview of all sales orders, customer details, and total revenue.</p>
+                <form action="{{ url_for('reports.generate_report') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="report_type" value="sales_report">
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="submit" name="format" value="excel" class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+                        <button type="submit" name="format" value="pdf" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Low Stock -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 report-card">
+            <div class="card-body text-center">
+                <div class="mb-3"><i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i></div>
+                <h5 class="card-title">Low Stock Alerts</h5>
+                <p class="text-muted small">List of items at or below their reorder points that require attention.</p>
+                <form action="{{ url_for('reports.generate_report') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="report_type" value="low_stock">
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="submit" name="format" value="excel" class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+                        <button type="submit" name="format" value="pdf" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Products Catalog -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 report-card">
+            <div class="card-body text-center">
+                <div class="mb-3"><i class="bi bi-tags text-info" style="font-size: 3rem;"></i></div>
+                <h5 class="card-title">Product Catalog</h5>
+                <p class="text-muted small">Complete list of all products, categories, selling prices, and costs.</p>
+                <form action="{{ url_for('reports.generate_report') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="report_type" value="product_catalog">
+                    <div class="d-flex gap-2 justify-content-center mt-4">
+                        <button type="submit" name="format" value="excel" class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+                        <button type="submit" name="format" value="pdf" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

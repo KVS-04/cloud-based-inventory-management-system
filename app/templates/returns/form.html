@@ -1,0 +1,68 @@
+{% extends 'base.html' %}{% block title %}New Return{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('returns.list_returns') }}">Returns</a></li><li class="breadcrumb-item active">New</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-plus-lg me-2"></i>New Return</h1></div>
+<form method="POST" data-validate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3"><div class="card-header">Return Details</div><div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Return Type *</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="return_type" id="typeCustomer" value="customer" checked>
+                                <label class="form-check-label" for="typeCustomer">Customer Return</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="return_type" id="typeSupplier" value="supplier">
+                                <label class="form-check-label" for="typeSupplier">Supplier Return</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6"><label class="form-label">Order Number *</label><input type="text" class="form-control" name="order_number" placeholder="Enter SO# or PO#" required></div>
+                </div>
+            </div></div>
+            <div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center">
+                <span>Return Items</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="addLineItem"><i class="bi bi-plus-lg me-1"></i>Add Item</button>
+            </div><div class="card-body">
+                <div id="lineItemsContainer">
+                    <div class="row g-2 mb-3 align-items-end line-item border-bottom pb-3">
+                        <div class="col-md-3"><label class="form-label">Product *</label>
+                            <select class="form-select form-select-sm" name="product_id[]" required>
+                                <option value="">Select Product</option>
+                                {% for p in products %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2"><label class="form-label">Qty *</label><input type="number" class="form-control form-control-sm" name="quantity[]" min="1" value="1" required></div>
+                        <div class="col-md-3"><label class="form-label">Reason *</label>
+                            <select class="form-select form-select-sm" name="reason[]" required>
+                                <option value="">Select Reason</option>
+                                {% for r in ['Defective', 'Wrong Item', 'Damaged', 'Quality Issue', 'Not as Described', 'Other'] %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3"><label class="form-label">Condition</label>
+                            <select class="form-select form-select-sm" name="condition[]">
+                                {% for c in ['New', 'Like New', 'Used', 'Damaged'] %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-line"><i class="bi bi-trash"></i></button></div>
+                    </div>
+                </div>
+            </div></div>
+            <div class="card mb-3"><div class="card-header">Notes</div><div class="card-body">
+                <textarea class="form-control" name="notes" rows="3" placeholder="Additional notes about this return..."></textarea>
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card"><div class="card-body"><div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Submit Return</button>
+                <a href="{{ url_for('returns.list_returns') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div></div></div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

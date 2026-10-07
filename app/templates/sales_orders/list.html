@@ -1,0 +1,45 @@
+{% extends 'base.html' %}{% block title %}Sales Orders{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Sales Orders</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-receipt me-2"></i>Sales Orders</h1>
+    <a href="{{ url_for('sales_orders.add_sales_order') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>New Sales Order</a>
+</div>
+<ul class="nav nav-tabs mb-3">
+    {% set current_status = request.args.get('status', '') %}
+    {% for s in [('', 'All'), ('pending', 'Pending'), ('confirmed', 'Confirmed'), ('processing', 'Processing'), ('shipped', 'Shipped'), ('delivered', 'Delivered'), ('cancelled', 'Cancelled')] %}
+    <li class="nav-item"><a class="nav-link {% if current_status == s[0] %}active{% endif %}" href="{{ url_for('sales_orders.list_sales_orders', status=s[0]) }}">{{ s[1] }}</a></li>
+    {% endfor %}
+</ul>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="soTable">
+            <thead><tr><th data-sort>SO #</th><th data-sort>Customer</th><th>Channel</th><th>Items</th><th data-sort>Total</th><th>Status</th><th>Payment</th><th data-sort>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for so in orders %}
+            <tr>
+                <td><code>{{ so.order_number }}</code></td>
+                <td>{{ so.customer_name }}</td>
+                <td><span class="badge bg-{{ 'primary' if so.channel=='ecommerce' else 'info' if so.channel=='pos' else 'secondary' }}">{{ so.channel|capitalize }}</span></td>
+                <td><span class="badge bg-secondary">{{ so.items|length }}</span></td>
+                <td>${{ "%.2f"|format(so.total_amount) }}</td>
+                <td><span class="badge bg-{{ 'warning' if so.status=='pending' else 'primary' if so.status=='confirmed' else 'info' if so.status=='processing' else 'success' if so.status in ['shipped','delivered'] else 'danger' }}">{{ so.status|capitalize }}</span></td>
+                <td><span class="badge bg-{{ 'success' if so.payment_status=='paid' else 'warning' if so.payment_status=='pending' else 'danger' }}">{{ so.payment_status|capitalize }}</span></td>
+                <td>{{ so.created_at[:10] if so.created_at else '—' }}</td>
+                <td><div class="action-buttons">
+                    <a href="{{ url_for('sales_orders.view_sales_order', id=so.id) }}" class="btn btn-icon btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                </div></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" class="text-center text-muted py-4"><div class="empty-state"><i class="bi bi-receipt d-block"></i>No sales orders found</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="table-count text-muted small"></div>
+            <div class="table-pagination" data-table-pagination="soTable"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

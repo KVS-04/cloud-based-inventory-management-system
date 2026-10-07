@@ -1,0 +1,46 @@
+{% extends 'base.html' %}{% block title %}Purchase Orders{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Purchase Orders</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-cart-plus me-2"></i>Purchase Orders</h1>
+    {% if current_user.role in ['admin', 'manager'] %}
+    <a href="{{ url_for('purchase_orders.add_purchase_order') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>New PO</a>
+    {% endif %}
+</div>
+<ul class="nav nav-tabs mb-3">
+    {% set current_status = request.args.get('status', '') %}
+    {% for s in [('', 'All'), ('draft', 'Draft'), ('pending', 'Pending'), ('approved', 'Approved'), ('received', 'Received'), ('cancelled', 'Cancelled')] %}
+    <li class="nav-item"><a class="nav-link {% if current_status == s[0] %}active{% endif %}" href="{{ url_for('purchase_orders.list_purchase_orders', status=s[0]) }}">{{ s[1] }}</a></li>
+    {% endfor %}
+</ul>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="poTable">
+            <thead><tr><th data-sort>PO #</th><th data-sort>Supplier</th><th>Items</th><th data-sort>Total</th><th>Status</th><th data-sort>Expected Delivery</th><th data-sort>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for po in orders %}
+            <tr>
+                <td><code>{{ po.order_number }}</code></td>
+                <td>{{ po.supplier_name or '—' }}</td>
+                <td><span class="badge bg-secondary">{{ po.items|length }}</span></td>
+                <td>${{ "%.2f"|format(po.total_amount) }}</td>
+                <td><span class="badge bg-{{ 'secondary' if po.status=='draft' else 'warning' if po.status=='pending' else 'success' if po.status=='approved' else 'info' if po.status=='received' else 'danger' }}">{{ po.status|capitalize }}</span></td>
+                <td>{{ po.expected_delivery or '—' }}</td>
+                <td>{{ po.created_at[:10] if po.created_at else '—' }}</td>
+                <td><div class="action-buttons">
+                    <a href="{{ url_for('purchase_orders.view_purchase_order', id=po.id) }}" class="btn btn-icon btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                </div></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4"><div class="empty-state"><i class="bi bi-cart-plus d-block"></i>No purchase orders found</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="table-count text-muted small"></div>
+            <div class="table-pagination" data-table-pagination="poTable"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

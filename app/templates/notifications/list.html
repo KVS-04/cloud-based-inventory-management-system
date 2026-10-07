@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Notifications</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-bell me-2"></i>Notifications</h1>
+    <form method="POST" action="{{ url_for('api.api_mark_all_read') }}" class="d-inline" id="markAllForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="button" class="btn btn-outline-primary" id="markAllRead"><i class="bi bi-check2-all me-1"></i>Mark All Read</button>
+    </form>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item"><a class="nav-link {% if not request.args.get('unread') %}active{% endif %}" href="{{ url_for('notifications.list_notifications') }}">All</a></li>
+            <li class="nav-item"><a class="nav-link {% if request.args.get('unread') %}active{% endif %}" href="{{ url_for('notifications.list_notifications', unread='1') }}">Unread</a></li>
+        </ul>
+        <div class="list-group">
+            {% for n in notifications %}
+            <div class="list-group-item list-group-item-action d-flex gap-3 py-3 {% if not n.is_read %}bg-light{% endif %}" aria-current="true">
+                <i class="bi bi-{{ 'exclamation-circle text-danger' if n.type == 'alert' else 'info-circle text-info' if n.type == 'system' else 'bell text-primary' }} fs-4"></i>
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div>
+                        <h6 class="mb-1">{{ n.title }} {% if not n.is_read %}<span class="badge bg-danger rounded-pill ms-2">New</span>{% endif %}</h6>
+                        <p class="mb-1 text-muted">{{ n.message }}</p>
+                    </div>
+                    <div class="text-end" style="min-width:100px;">
+                        <small class="text-muted d-block mb-2">{{ n.created_at[:16] }}</small>
+                        {% if not n.is_read %}
+                        <form method="POST" action="{{ url_for('notifications.mark_read', id=n.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-link p-0 text-decoration-none">Mark Read</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
+                <p>No notifications found.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="d-flex justify-content-center mt-4">
+            <div class="table-pagination" data-table-pagination="notifList"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

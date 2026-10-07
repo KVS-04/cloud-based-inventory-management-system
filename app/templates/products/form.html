@@ -1,0 +1,63 @@
+{% extends 'base.html' %}{% block title %}{{ 'Edit' if product else 'Add' }} Product{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('products.list_products') }}">Products</a></li><li class="breadcrumb-item active">{{ 'Edit' if product else 'Add' }}</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-{{ 'pencil' if product else 'plus-lg' }} me-2"></i>{{ 'Edit' if product else 'Add New' }} Product</h1></div>
+<form method="POST" enctype="multipart/form-data" data-validate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3"><div class="card-header">Basic Information</div><div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8"><label class="form-label">Product Name *</label><input type="text" class="form-control" name="name" value="{{ product.name if product else '' }}" required></div>
+                    <div class="col-md-4"><label class="form-label">SKU</label><input type="text" class="form-control" name="sku" value="{{ product.sku if product else '' }}" placeholder="Auto-generated"></div>
+                    <div class="col-md-6"><label class="form-label">Category *</label><select class="form-select" name="category" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}<option value="{{ cat }}" {% if product and product.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}
+                    </select></div>
+                    <div class="col-md-6"><label class="form-label">Unit</label><select class="form-select" name="unit">
+                        {% for u in units %}<option value="{{ u }}" {% if product and product.unit==u %}selected{% endif %}>{{ u }}</option>{% endfor %}
+                    </select></div>
+                    <div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3">{{ product.description if product else '' }}</textarea></div>
+                    <div class="col-md-6"><label class="form-label">Barcode</label>
+                        <div class="input-group"><input type="text" class="form-control" name="barcode" value="{{ product.barcode if product else '' }}"><button type="button" class="btn btn-outline-secondary" id="generateBarcode"><i class="bi bi-upc"></i></button></div>
+                    </div>
+                    <div class="col-md-6"><label class="form-label">Supplier</label><select class="form-select" name="supplier_id">
+                        <option value="">Select Supplier</option>
+                        {% for s in suppliers %}<option value="{{ s.id }}" {% if product and product.supplier_id==s.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+                    </select></div>
+                </div>
+            </div></div>
+            <div class="card mb-3"><div class="card-header">Pricing</div><div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Selling Price *</label><div class="input-group"><span class="input-group-text">$</span><input type="number" class="form-control" name="price" step="0.01" min="0" value="{{ product.price if product else '0.00' }}" required></div></div>
+                    <div class="col-md-6"><label class="form-label">Cost Price</label><div class="input-group"><span class="input-group-text">$</span><input type="number" class="form-control" name="cost_price" step="0.01" min="0" value="{{ product.cost_price if product else '0.00' }}"></div></div>
+                </div>
+            </div></div>
+            <div class="card mb-3"><div class="card-header">Stock Settings</div><div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">Min Stock</label><input type="number" class="form-control" name="min_stock_level" min="0" value="{{ product.min_stock_level if product else 10 }}"></div>
+                    <div class="col-md-3"><label class="form-label">Reorder Point</label><input type="number" class="form-control" name="reorder_point" min="0" value="{{ product.reorder_point if product else 20 }}"></div>
+                    <div class="col-md-3"><label class="form-label">Reorder Qty</label><input type="number" class="form-control" name="reorder_quantity" min="0" value="{{ product.reorder_quantity if product else 50 }}"></div>
+                    <div class="col-md-3"><label class="form-label">Max Stock</label><input type="number" class="form-control" name="max_stock_level" min="0" value="{{ product.max_stock_level if product else 500 }}"></div>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3"><div class="card-header">Product Image</div><div class="card-body">
+                <div class="upload-area" data-input="productImage">
+                    <input type="file" id="productImage" name="image" accept="image/*" style="display:none;">
+                    {% if product and product.image_url %}<img src="{{ product.image_url }}" class="upload-preview img-fluid rounded mb-2" style="max-height:200px;">
+                    {% else %}<div class="upload-text"><i class="bi bi-cloud-upload d-block mb-2"></i><span class="text-muted">Click or drag to upload</span></div>{% endif %}
+                </div>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{{ 'Update' if product else 'Create' }} Product</button>
+                    <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div></div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Suppliers{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Suppliers</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-truck me-2"></i>Suppliers</h1>
+    {% if current_user.role in ['admin', 'manager'] %}
+    <a href="{{ url_for('suppliers.add_supplier') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Supplier</a>
+    {% endif %}
+</div>
+<div class="filter-bar">
+    <div class="form-group"><label>Search</label><input type="text" class="form-control form-control-sm table-search" data-table-search="suppTable" placeholder="Search suppliers..."></div>
+</div>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="suppTable">
+            <thead><tr><th data-sort>Name</th><th data-sort>Code</th><th data-sort>Contact</th><th>Email</th><th>Phone</th><th data-sort>Rating</th><th data-sort>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for s in suppliers %}
+            <tr>
+                <td><strong>{{ s.name }}</strong></td>
+                <td><code>{{ s.code }}</code></td>
+                <td>{{ s.contact_person }}</td>
+                <td><a href="mailto:{{ s.email }}">{{ s.email }}</a></td>
+                <td>{{ s.phone }}</td>
+                <td>
+                    {% for i in range(5) %}<i class="bi bi-star{{ '-fill text-warning' if i < s.rating else '' }}"></i>{% endfor %}
+                </td>
+                <td><span class="badge bg-{{ 'success' if s.is_active else 'secondary' }}">{{ 'Active' if s.is_active else 'Inactive' }}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        {% if current_user.role in ['admin', 'manager'] %}
+                        <a href="{{ url_for('suppliers.edit_supplier', id=s.id) }}" class="btn btn-icon btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4">No suppliers found</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between p-3"><div class="table-count text-muted small"></div><div class="table-pagination" data-table-pagination="suppTable"></div></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

@@ -1,0 +1,63 @@
+# ============================================
+# P5. Cloud-based Inventory Management System
+# Git Ignore Configuration
+# ============================================
+
+# --- Environment Variables ---
+.env
+*.env.local
+*.env.production
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Virtual Environment ---
+venv/
+env/
+.venv/
+ENV/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Azure ---
+local.settings.json
+.azure/
+
+# --- Testing ---
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Uploads ---
+app/static/uploads/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Node (if any) ---
+node_modules/

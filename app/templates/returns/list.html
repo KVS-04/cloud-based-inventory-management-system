@@ -1,0 +1,44 @@
+{% extends 'base.html' %}{% block title %}Returns{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Returns</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-arrow-return-left me-2"></i>Returns</h1>
+    <a href="{{ url_for('returns.add_return') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>New Return</a>
+</div>
+<ul class="nav nav-tabs mb-3">
+    {% set current_type = request.args.get('type', '') %}
+    <li class="nav-item"><a class="nav-link {% if not current_type %}active{% endif %}" href="{{ url_for('returns.list_returns') }}">All Returns</a></li>
+    <li class="nav-item"><a class="nav-link {% if current_type == 'customer' %}active{% endif %}" href="{{ url_for('returns.list_returns', type='customer') }}">Customer Returns</a></li>
+    <li class="nav-item"><a class="nav-link {% if current_type == 'supplier' %}active{% endif %}" href="{{ url_for('returns.list_returns', type='supplier') }}">Supplier Returns</a></li>
+</ul>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="returnsTable">
+            <thead><tr><th data-sort>Return #</th><th>Type</th><th data-sort>Order #</th><th>Items</th><th>Status</th><th data-sort>Refund Amount</th><th data-sort>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for ret in returns %}
+            <tr>
+                <td><code>{{ ret.return_number }}</code></td>
+                <td><span class="badge bg-{{ 'info' if ret.return_type=='customer' else 'warning' }}">{{ ret.return_type|capitalize }}</span></td>
+                <td><code>{{ ret.order_number or '—' }}</code></td>
+                <td><span class="badge bg-secondary">{{ ret.items|length }}</span></td>
+                <td><span class="badge bg-{{ 'warning' if ret.status=='pending' else 'info' if ret.status=='processing' else 'success' if ret.status=='completed' else 'danger' }}">{{ ret.status|capitalize }}</span></td>
+                <td>${{ "%.2f"|format(ret.refund_amount) }}</td>
+                <td>{{ ret.created_at.strftime('%b %d, %Y') }}</td>
+                <td><div class="action-buttons">
+                    <a href="{{ url_for('returns.view_return', id=ret.id) }}" class="btn btn-icon btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                </div></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4"><div class="empty-state"><i class="bi bi-arrow-return-left d-block"></i>No returns found</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="table-count text-muted small"></div>
+            <div class="table-pagination" data-table-pagination="returnsTable"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

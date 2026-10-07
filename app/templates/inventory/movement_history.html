@@ -1,0 +1,25 @@
+{% extends 'base.html' %}{% block title %}Movement History{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('inventory.list_inventory') }}">Inventory</a></li><li class="breadcrumb-item active">Movement History</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-clock-history me-2"></i>Movement History</h1></div>
+<div class="filter-bar">
+    <div class="form-group"><label>Type</label><select class="form-select form-select-sm"><option value="">All Types</option><option>stock_in</option><option>stock_out</option><option>transfer</option><option>adjustment</option><option>return</option></select></div>
+    <div class="form-group"><label>Search</label><input type="text" class="form-control form-control-sm table-search" data-table-search="movTable" placeholder="Search..."></div>
+</div>
+<div class="card"><div class="table-responsive table-wrapper">
+    <table class="table data-table" id="movTable">
+        <thead><tr><th data-sort>Date</th><th>Product</th><th>Type</th><th>Qty</th><th>Previous</th><th>New</th><th>Reference</th><th>User</th></tr></thead>
+        <tbody>
+        {% for m in movements %}
+        <tr><td>{{ m.created_at[:16] }}</td><td>{{ m.product_name }}</td>
+            <td><span class="badge bg-{{ 'success' if m.movement_type=='stock_in' else 'danger' if m.movement_type=='stock_out' else 'info' if m.movement_type=='transfer' else 'warning' }}">{{ m.movement_type }}</span></td>
+            <td>{{ ('+' if m.movement_type in ['stock_in','return'] else '-') }}{{ m.quantity }}</td>
+            <td>{{ m.previous_quantity }}</td><td>{{ m.new_quantity }}</td>
+            <td>{{ m.reference_type }}</td><td>{{ m.performed_by_name }}</td></tr>
+        {% else %}<tr><td colspan="8" class="text-center text-muted py-4">No movements recorded</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-between p-3"><div class="table-count text-muted small"></div><div class="table-pagination" data-table-pagination="movTable"></div></div>
+</div></div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

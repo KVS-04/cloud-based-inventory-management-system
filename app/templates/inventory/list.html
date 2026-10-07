@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% block title %}Inventory{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Inventory</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-clipboard-data me-2"></i>Inventory</h1>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('inventory.adjust_stock') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-minus me-1"></i>Adjust Stock</a>
+        <a href="{{ url_for('inventory.movement_history') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-clock-history me-1"></i>History</a>
+    </div>
+</div>
+<div class="filter-bar">
+    <div class="form-group"><label>Search</label><input type="text" class="form-control form-control-sm table-search" data-table-search="invTable" placeholder="Search..."></div>
+    <div class="form-group" style="flex:0;"><a href="{{ url_for('inventory.export_inventory') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-download me-1"></i>Export</a></div>
+</div>
+<div class="card"><div class="table-responsive table-wrapper">
+    <table class="table data-table" id="invTable">
+        <thead><tr><th data-sort>Product</th><th data-sort>SKU</th><th data-sort>Warehouse</th><th data-sort>Quantity</th><th>Reserved</th><th>Available</th><th>Location</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for item in inventory %}
+        <tr>
+            <td>{{ item.product_name }}</td><td><code>{{ item.sku }}</code></td>
+            <td>{{ item.warehouse_name }}</td><td>{{ item.quantity }}</td>
+            <td>{{ item.reserved_quantity }}</td><td><strong>{{ item.available_quantity }}</strong></td>
+            <td>{{ item.location }}</td>
+            <td>{% if item.available_quantity <= 0 %}<span class="badge badge-stock-out">Out of Stock</span>
+            {% elif item.available_quantity <= 10 %}<span class="badge badge-stock-critical">Critical</span>
+            {% elif item.available_quantity <= 20 %}<span class="badge badge-stock-low">Low</span>
+            {% else %}<span class="badge badge-stock-normal">Normal</span>{% endif %}</td>
+        </tr>
+        {% else %}<tr><td colspan="8" class="text-center text-muted py-4">No inventory records</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-between p-3"><div class="table-count text-muted small"></div><div class="table-pagination" data-table-pagination="invTable"></div></div>
+</div></div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

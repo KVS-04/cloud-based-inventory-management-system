@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if supplier else 'Add' }} Supplier{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('suppliers.list_suppliers') }}">Suppliers</a></li><li class="breadcrumb-item active">{{ 'Edit' if supplier else 'Add' }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-{{ 'pencil' if supplier else 'plus-lg' }} me-2"></i>{{ 'Edit' if supplier else 'Add New' }} Supplier</h1>
+</div>
+<form method="POST" data-validate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header">Basic Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8"><label class="form-label">Company Name *</label><input type="text" class="form-control" name="name" value="{{ supplier.name if supplier else '' }}" required></div>
+                        <div class="col-md-4"><label class="form-label">Code</label><input type="text" class="form-control" name="code" value="{{ supplier.code if supplier else '' }}" placeholder="Auto-generated"></div>
+                        <div class="col-md-6"><label class="form-label">Contact Person</label><input type="text" class="form-control" name="contact_person" value="{{ supplier.contact_person if supplier else '' }}"></div>
+                        <div class="col-md-6"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" value="{{ supplier.email if supplier else '' }}" required></div>
+                        <div class="col-md-6"><label class="form-label">Phone *</label><input type="tel" class="form-control" name="phone" value="{{ supplier.phone if supplier else '' }}" required></div>
+                        <div class="col-md-6"><label class="form-label">Rating (1-5)</label><input type="number" class="form-control" name="rating" min="1" max="5" value="{{ supplier.rating if supplier else 5 }}"></div>
+                        <div class="col-12"><label class="form-label">Notes</label><textarea class="form-control" name="notes" rows="3">{{ supplier.notes if supplier else '' }}</textarea></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Address</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12"><label class="form-label">Street Address</label><input type="text" class="form-control" name="street" value="{{ supplier.address.street if supplier and supplier.address else '' }}"></div>
+                        <div class="col-md-4"><label class="form-label">City</label><input type="text" class="form-control" name="city" value="{{ supplier.address.city if supplier and supplier.address else '' }}"></div>
+                        <div class="col-md-4"><label class="form-label">State / Province</label><input type="text" class="form-control" name="state" value="{{ supplier.address.state if supplier and supplier.address else '' }}"></div>
+                        <div class="col-md-2"><label class="form-label">ZIP / Postal</label><input type="text" class="form-control" name="zip" value="{{ supplier.address.zip if supplier and supplier.address else '' }}"></div>
+                        <div class="col-md-2"><label class="form-label">Country</label><input type="text" class="form-control" name="country" value="{{ supplier.address.country if supplier and supplier.address else '' }}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">Supplier Settings</div>
+                <div class="card-body">
+                    <div class="mb-3"><label class="form-label">Payment Terms</label><select class="form-select" name="payment_terms"><option value="Net 30">Net 30</option><option value="Net 60">Net 60</option><option value="Prepaid">Prepaid</option></select></div>
+                    <div class="mb-3"><label class="form-label">Lead Time (Days)</label><input type="number" class="form-control" name="lead_time_days" value="{{ supplier.lead_time_days if supplier else 7 }}"></div>
+                    <div class="mb-3 form-check form-switch"><input class="form-check-input" type="checkbox" name="is_active" id="isActive" {% if not supplier or supplier.is_active %}checked{% endif %}><label class="form-check-label" for="isActive">Active Supplier</label></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{{ 'Update' if supplier else 'Create' }} Supplier</button>
+                        <a href="{{ url_for('suppliers.list_suppliers') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

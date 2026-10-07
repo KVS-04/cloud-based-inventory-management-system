@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if warehouse else 'Add' }} Warehouse{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('warehouses.list_warehouses') }}">Warehouses</a></li><li class="breadcrumb-item active">{{ 'Edit' if warehouse else 'Add' }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-{{ 'pencil' if warehouse else 'plus-lg' }} me-2"></i>{{ 'Edit' if warehouse else 'Add New' }} Warehouse</h1>
+</div>
+<form method="POST" data-validate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header">Basic Information</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8"><label class="form-label">Warehouse Name *</label><input type="text" class="form-control" name="name" value="{{ warehouse.name if warehouse else '' }}" required></div>
+                        <div class="col-md-4"><label class="form-label">Code</label><input type="text" class="form-control" name="code" value="{{ warehouse.code if warehouse else '' }}" placeholder="Auto-generated"></div>
+                        <div class="col-md-6"><label class="form-label">Region *</label><input type="text" class="form-control" name="region" value="{{ warehouse.region if warehouse else '' }}" required></div>
+                        <div class="col-md-6"><label class="form-label">Capacity (Units)</label><input type="number" class="form-control" name="capacity" value="{{ warehouse.capacity if warehouse else 10000 }}"></div>
+                        <div class="col-md-12"><label class="form-label">Manager Name</label><input type="text" class="form-control" name="manager_name" value="{{ warehouse.manager_name if warehouse else '' }}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Location Details</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12"><label class="form-label">Street Address</label><input type="text" class="form-control" name="street" value="{{ warehouse.address.street if warehouse and warehouse.address else '' }}"></div>
+                        <div class="col-md-4"><label class="form-label">City</label><input type="text" class="form-control" name="city" value="{{ warehouse.address.city if warehouse and warehouse.address else '' }}"></div>
+                        <div class="col-md-4"><label class="form-label">State / Province</label><input type="text" class="form-control" name="state" value="{{ warehouse.address.state if warehouse and warehouse.address else '' }}"></div>
+                        <div class="col-md-2"><label class="form-label">ZIP / Postal</label><input type="text" class="form-control" name="zip" value="{{ warehouse.address.zip if warehouse and warehouse.address else '' }}"></div>
+                        <div class="col-md-2"><label class="form-label">Country</label><input type="text" class="form-control" name="country" value="{{ warehouse.address.country if warehouse and warehouse.address else '' }}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">Status</div>
+                <div class="card-body">
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="is_active" id="isActive" {% if not warehouse or warehouse.is_active %}checked{% endif %}><label class="form-check-label" for="isActive">Active Warehouse</label></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{{ 'Update' if warehouse else 'Create' }} Warehouse</button>
+                        <a href="{{ url_for('warehouses.list_warehouses') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

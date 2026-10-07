@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Warehouses{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Warehouses</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-building me-2"></i>Warehouses</h1>
+    {% if current_user.role in ['admin', 'manager'] %}
+    <a href="{{ url_for('warehouses.add_warehouse') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Warehouse</a>
+    {% endif %}
+</div>
+<div class="filter-bar">
+    <div class="form-group"><label>Search</label><input type="text" class="form-control form-control-sm table-search" data-table-search="whTable" placeholder="Search warehouses..."></div>
+</div>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="whTable">
+            <thead><tr><th data-sort>Name</th><th data-sort>Code</th><th data-sort>Region</th><th>Address</th><th>Manager</th><th data-sort>Capacity</th><th data-sort>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for w in warehouses %}
+            <tr>
+                <td><strong>{{ w.name }}</strong></td>
+                <td><code>{{ w.code }}</code></td>
+                <td>{{ w.region }}</td>
+                <td>{{ w.address.city }}, {{ w.address.country }}</td>
+                <td>{{ w.manager_name or 'N/A' }}</td>
+                <td>{{ w.capacity }} units</td>
+                <td><span class="badge bg-{{ 'success' if w.is_active else 'secondary' }}">{{ 'Active' if w.is_active else 'Inactive' }}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        {% if current_user.role in ['admin', 'manager'] %}
+                        <a href="{{ url_for('warehouses.edit_warehouse', id=w.id) }}" class="btn btn-icon btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4">No warehouses found</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between p-3"><div class="table-count text-muted small"></div><div class="table-pagination" data-table-pagination="whTable"></div></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

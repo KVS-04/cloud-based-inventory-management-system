@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block title %}Products{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Products</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-box me-2"></i>Products</h1>
+    {% if current_user.role in ['admin', 'manager'] %}
+    <a href="{{ url_for('products.add_product') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Product</a>
+    {% endif %}
+</div>
+<div class="filter-bar">
+    <form method="GET" action="{{ url_for('products.list_products') }}" id="filterForm" class="d-flex w-100 gap-3 align-items-center">
+        <div class="form-group mb-0"><label>Category</label><select name="category" class="form-select form-select-sm" id="filterCategory" onchange="this.form.submit()"><option value="">All Categories</option>{% for cat in categories %}<option value="{{ cat }}" {% if request.args.get('category')==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select></div>
+        <div class="form-group mb-0 flex-grow-1"><label>Search</label><input type="text" name="search" class="form-control form-control-sm" placeholder="Search products..." value="{{ request.args.get('search','') }}" onkeypress="if(event.key === 'Enter') this.form.submit();"></div>
+        <div class="form-group mb-0"><label>&nbsp;</label><a href="{{ url_for('products.export_products', format='excel') }}" class="btn btn-outline-secondary btn-sm d-block"><i class="bi bi-download me-1"></i>Export</a></div>
+    </form>
+</div>
+<div class="card">
+    <div class="table-responsive table-wrapper">
+        <table class="table data-table" id="productsTable">
+            <thead><tr><th data-sort>SKU</th><th data-sort>Name</th><th data-sort>Category</th><th data-sort>Price</th><th data-sort>Cost</th><th>Unit</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for product in products %}
+            <tr>
+                <td><code>{{ product.sku }}</code></td>
+                <td><div class="d-flex align-items-center gap-2">{% if product.image_url %}<img src="{{ product.image_url }}" class="product-thumb" alt="">{% endif %}<span>{{ product.name }}</span></div></td>
+                <td>{{ product.category }}</td>
+                <td>${{ "%.2f"|format(product.price) }}</td>
+                <td>${{ "%.2f"|format(product.cost_price) }}</td>
+                <td>{{ product.unit }}</td>
+                <td><span class="badge bg-{{ 'success' if product.is_active else 'secondary' }}">{{ 'Active' if product.is_active else 'Inactive' }}</span></td>
+                <td><div class="action-buttons">
+                    <a href="{{ url_for('products.view_product', id=product.id) }}" class="btn btn-icon btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                    {% if current_user.role in ['admin','manager'] %}<a href="{{ url_for('products.edit_product', id=product.id) }}" class="btn btn-icon btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>{% endif %}
+                </div></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4"><div class="empty-state"><i class="bi bi-box d-block"></i>No products found</div></td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="table-count text-muted small"></div>
+            <div class="table-pagination" data-table-pagination="productsTable"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/datatables.js') }}"></script>{% endblock %}

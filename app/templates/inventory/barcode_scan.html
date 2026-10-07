@@ -1,0 +1,28 @@
+{% extends 'base.html' %}{% block title %}Barcode Scanner{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('inventory.list_inventory') }}">Inventory</a></li><li class="breadcrumb-item active">Barcode Scanner</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-upc-scan me-2"></i>Barcode Scanner</h1></div>
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card"><div class="card-header">Camera Scanner</div><div class="card-body">
+            <div id="barcode-scanner" style="min-height:300px;background:var(--body-bg);border-radius:var(--radius);overflow:hidden;">
+                <div class="text-center text-muted py-5"><i class="bi bi-upc-scan" style="font-size:3rem;opacity:0.3;"></i><p class="mt-2">Click "Start Scanner" to begin</p></div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-primary" id="startScanner"><i class="bi bi-camera me-1"></i>Start Scanner</button>
+                <button class="btn btn-outline-danger" id="stopScanner" style="display:none;"><i class="bi bi-stop-circle me-1"></i>Stop</button>
+            </div>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-3"><div class="card-header">Manual Entry</div><div class="card-body">
+            <div class="input-group">
+                <input type="text" class="form-control" id="manualBarcode" placeholder="Enter barcode number...">
+                <button class="btn btn-primary" id="lookupBarcode"><i class="bi bi-search me-1"></i>Lookup</button>
+            </div>
+        </div></div>
+        <div id="scanResult"></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/barcode.js', v=range(1, 1000000) | random) }}"></script>{% endblock %}

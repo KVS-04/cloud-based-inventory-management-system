@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if user else 'Add' }} User{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('users.list_users') }}">Users</a></li><li class="breadcrumb-item active">{{ 'Edit' if user else 'Add' }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-{{ 'pencil' if user else 'person-plus' }} me-2"></i>{{ 'Edit' if user else 'Add New' }} User</h1>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" data-validate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label">First Name *</label><input type="text" class="form-control" name="first_name" value="{{ user.first_name if user else '' }}" required></div>
+                        <div class="col-md-6"><label class="form-label">Last Name *</label><input type="text" class="form-control" name="last_name" value="{{ user.last_name if user else '' }}" required></div>
+                        <div class="col-md-6"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" value="{{ user.email if user else '' }}" required {% if user %}readonly{% endif %}></div>
+                        <div class="col-md-6"><label class="form-label">Phone</label><input type="tel" class="form-control" name="phone" value="{{ user.phone if user else '' }}"></div>
+                        <div class="col-md-12"><label class="form-label">Role *</label><select class="form-select" name="role" required {% if user and user.id == current_user.id %}disabled{% endif %}>
+                            <option value="staff" {% if user and user.role == 'staff' %}selected{% endif %}>Staff</option>
+                            <option value="manager" {% if user and user.role == 'manager' %}selected{% endif %}>Manager</option>
+                            <option value="admin" {% if user and user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select></div>
+                        {% if not user %}
+                        <div class="col-md-6"><label class="form-label">Password *</label><input type="password" class="form-control" name="password" required minlength="8"></div>
+                        <div class="col-md-6"><label class="form-label">Confirm Password *</label><input type="password" class="form-control" name="confirm_password" required></div>
+                        {% endif %}
+                        <div class="col-12 mt-4 text-end">
+                            <a href="{{ url_for('users.list_users') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{{ 'Save Changes' if user else 'Create User' }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}{% block title %}SO {{ so.order_number }}{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('sales_orders.list_sales_orders') }}">Sales Orders</a></li><li class="breadcrumb-item active">{{ so.order_number }}</li>{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ so.order_number }}</h1>
+    <div class="d-flex gap-2">
+        {% if so.status == 'pending' %}
+        <form method="POST" action="{{ url_for('sales_orders.update_so_status', id=so.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="confirmed">
+            <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-circle me-1"></i>Confirm</button>
+        </form>
+        {% elif so.status == 'confirmed' %}
+        <form method="POST" action="{{ url_for('sales_orders.update_so_status', id=so.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="processing">
+            <button type="submit" class="btn btn-info btn-sm"><i class="bi bi-gear me-1"></i>Process</button>
+        </form>
+        {% elif so.status == 'processing' %}
+        <form method="POST" action="{{ url_for('sales_orders.update_so_status', id=so.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="shipped">
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-truck me-1"></i>Ship</button>
+        </form>
+        {% elif so.status == 'shipped' %}
+        <form method="POST" action="{{ url_for('sales_orders.update_so_status', id=so.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="delivered">
+            <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-check2-all me-1"></i>Delivered</button>
+        </form>
+        {% endif %}
+        {% if so.status not in ['delivered', 'cancelled'] %}
+        <form method="POST" action="{{ url_for('sales_orders.update_so_status', id=so.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="cancelled">
+            <button type="submit" class="btn btn-outline-danger btn-sm" data-confirm="Cancel this order?"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card mb-3"><div class="card-header">Order Details</div><div class="card-body">
+            <div class="row g-3">
+                <div class="col-6"><small class="text-muted d-block">SO Number</small><strong>{{ so.order_number }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Status</small><span class="badge bg-{{ 'warning' if so.status=='pending' else 'primary' if so.status=='confirmed' else 'info' if so.status=='processing' else 'success' if so.status in ['shipped','delivered'] else 'danger' }}">{{ so.status|capitalize }}</span></div>
+                <div class="col-12"><small class="text-muted d-block">Customer</small><strong>{{ so.customer_name }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Channel</small><span class="badge bg-{{ 'primary' if so.channel=='ecommerce' else 'info' if so.channel=='pos' else 'secondary' }}">{{ so.channel|capitalize }}</span></div>
+                <div class="col-6"><small class="text-muted d-block">Payment</small><span class="badge bg-{{ 'success' if so.payment_status=='paid' else 'warning' if so.payment_status=='partial' else 'danger' }}">{{ so.payment_status|capitalize }}</span></div>
+                <div class="col-6"><small class="text-muted d-block">Created</small><strong>{{ so.created_at[:10] if so.created_at else '—' }}</strong></div>
+                <div class="col-6"><small class="text-muted d-block">Email</small><strong>{{ so.customer_email or '—' }}</strong></div>
+            </div>
+        </div></div>
+        <div class="card mb-3"><div class="card-header">Totals</div><div class="card-body">
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal</span><span>${{ "%.2f"|format(so.subtotal) }}</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Tax</span><span>${{ "%.2f"|format(so.tax) }}</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Discount</span><span>-${{ "%.2f"|format(so.discount) }}</span></div>
+            <hr>
+            <div class="d-flex justify-content-between"><strong>Total</strong><strong class="text-primary">${{ "%.2f"|format(so.total_amount) }}</strong></div>
+        </div></div>
+        {% if so.shipping_address %}
+        <div class="card"><div class="card-header">Shipping Address</div><div class="card-body">
+            <p class="mb-0">{{ so.shipping_address }}</p>
+        </div></div>
+        {% endif %}
+    </div>
+    <div class="col-lg-8">
+        <div class="card mb-3"><div class="card-header">Items</div>
+            <div class="table-responsive"><table class="table mb-0">
+                <thead><tr><th>Product</th><th>SKU</th><th class="text-center">Qty</th><th class="text-end">Unit Price</th><th class="text-end">Total</th></tr></thead>
+                <tbody>
+                {% for item in so.items %}
+                <tr>
+                    <td>{{ item.product_name or '—' }}</td>
+                    <td><code>{{ item.sku or '—' }}</code></td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-end">${{ "%.2f"|format(item.unit_price) }}</td>
+                    <td class="text-end">${{ "%.2f"|format(item.total) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-3">No items</td></tr>
+                {% endfor %}
+                </tbody>
+            </table></div>
+        </div>
+        <div class="card"><div class="card-header">Notes</div><div class="card-body">
+            <p class="mb-0">{{ so.notes or 'No notes added.' }}</p>
+        </div></div>
+    </div>
+</div>
+{% endblock %}

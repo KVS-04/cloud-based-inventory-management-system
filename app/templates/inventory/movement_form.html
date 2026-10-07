@@ -1,0 +1,32 @@
+{% extends 'base.html' %}{% block title %}Stock Adjustment{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item"><a href="{{ url_for('inventory.list_inventory') }}">Inventory</a></li><li class="breadcrumb-item active">Adjust Stock</li>{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-plus-minus me-2"></i>Stock Adjustment</h1></div>
+<div class="row justify-content-center"><div class="col-lg-8">
+<div class="card"><div class="card-body">
+    <form method="POST" action="{{ url_for('inventory.adjust_stock') }}" data-validate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Movement Type *</label>
+                <select class="form-select" name="movement_type" required>
+                    <option value="stock_in">Stock In (+)</option><option value="stock_out">Stock Out (-)</option>
+                    <option value="adjustment">Adjustment</option><option value="transfer">Transfer</option>
+                </select></div>
+            <div class="col-md-6"><label class="form-label">Product *</label>
+                <select class="form-select" name="product_id" required><option value="">Select Product</option>
+                {% for p in products %}<option value="{{ p.id }}">{{ p.name }} ({{ p.sku }})</option>{% endfor %}
+                </select></div>
+            <div class="col-md-6"><label class="form-label">Warehouse *</label>
+                <select class="form-select" name="warehouse_id" required><option value="">Select Warehouse</option>
+                {% for w in warehouses %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}
+                </select></div>
+            <div class="col-md-6"><label class="form-label">Quantity *</label>
+                <input type="number" class="form-control" name="quantity" min="1" required></div>
+            <div class="col-12"><label class="form-label">Reason / Notes</label>
+                <textarea class="form-control" name="reason" rows="2"></textarea></div>
+            <div class="col-12"><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Submit Adjustment</button>
+                <a href="{{ url_for('inventory.list_inventory') }}" class="btn btn-outline-secondary ms-2">Cancel</a></div>
+        </div>
+    </form>
+</div></div></div></div>
+{% endblock %}
